@@ -1,0 +1,26 @@
+# UTILISER L'IMAGE OFFICIELLE PHP COMME BASE
+FROM php:8.2-apache
+
+# INSTALLER LES EXTENSIONS ET OUTILS NECESSAIRES
+RUN docker-php-ext-install pdo pdo_mysql
+
+# ACTIVER MOD_REWRITE D'APACHE
+RUN a2enmod rewrite
+
+# DEFINIR LE REPERTOIRE DE TRAVAIL
+WORKDIR /var/www/html
+
+# COPIER LE CONTENU DU REPERTOIRE ACTUEL DANS LE CONTENEUR
+COPY . /var/www/html
+
+# DEFINIR LES PERMISSIONS POUR LES REPERTOIRES DE STOCKAGE ET DE CACHE DE LARAVEL
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+
+# INSTALLER COMPOSER
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# INSTALLER LES DEPENDANCES LARAVEL
+RUN composer install
+
+# EXPOSER LE PORT 80
+EXPOSE 80
